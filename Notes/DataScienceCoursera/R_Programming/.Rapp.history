@@ -1,0 +1,64 @@
+read.csv('hw1_data')
+read.csv('hw1_data.csv')
+read.csv('hw1_data.csv')
+getwd
+getwd()
+lc
+ls
+changewd
+changewd()
+wd()
+changewd
+getwd()
+setwd()
+setwd('/Users/hechengwang/Dropbox/Documents/R')
+setwd('/Users/hechengwang/Dropbox/Documents/Coursera/R')
+getwd()
+read.csv('hw1_data.csv')
+data = read.csv('hw1_data.csv')
+data
+data[1,2]
+data[1,47]
+data[1,46]
+data[1,48]
+data[1,3]
+data[47,1]
+is.na(data[1] == False)
+is.na(data[1] == FALSE)
+is.na(data[1] = FALSE)
+is.na(data[1] == TRUE)
+is.na(data[1] == FALSE)
+data[1][is.na(data[1] == FALSE)]
+ozone = data[1]
+ozone[is.na(ozone == FALSE)]
+ozone[is.na(ozone == TRUE)]
+data[is.na(ozone == TRUE)]
+is.na(data == FALSE)
+is.na(data == FALSE)[1]
+(is.na(data == FALSE)[1])
+is.na(data == FALSE)[1]
+is.na(data == FALSE)
+missing = is.na(data == FALSE)
+missing[1]
+missing(1)
+missing$Ozone
+is.na(data == FALSE)
+is.na(data[1] == FALSE)
+missing = is.na(data[1] == FALSE)
+ozone[!missing]
+data[4]
+temp = data[4]
+month = data[5]
+good = complete.cases(temp, month)
+good
+data(good)
+data[good]
+data1 = cbind(temp[good],month[good])
+temp[good]
+complete.cases(data)
+good = complete.cases(data)
+data[good]
+data[good,]
+gooddata = data[good,]
+mean(gooddata[1][gooddata[5] = 6])
+mean(gooddata[1][gooddata[5] == 6])
