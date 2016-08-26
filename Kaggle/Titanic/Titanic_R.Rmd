@@ -1,0 +1,100 @@
+---
+title: "Titanic_R"
+author: "Michael Wang"
+date: "August 7, 2016"
+output: html_document
+---
+
+Install necessary packages:
+```{r}
+setwd("~/GitHub/Kaggle/Titanic")
+train <- read.csv("train.csv")
+test <- read.csv("test.csv")
+
+library(rpart)
+library(randomForest)
+library(party)
+library(dplyr)
+```
+
+Make a dataframe that joins training and test sets:
+```{r}
+test$Survived = NA
+df <- rbind(train, test)
+```
+
+Engineer the title feature:
+```{r}
+df <- df %>%
+  mutate(
+    Name = as.character(Name),
+    Title = sapply(Name, FUN = function(x) {strsplit(x, split = '[,.]')[[1]][2]}),
+    Title = sub(' ', '', Title)
+  )
+```
+
+Combine the 'special names' into their less special forms:
+```{r}
+df <- df %>%
+  mutate(
+    Title = ifelse(Title %in% c('Mme', 'Mlle'), 'Mlle', Title),
+    Title = ifelse(Title %in% c('Capt', 'Major', 'Sir'), 'Sir', Title),
+    Title = ifelse(Title %in% c('Dona', 'Lady','the Countess', 'Jonkheer'), 'Lady', Title),
+    Title = factor(Title)
+  )
+```
+
+Create the family size variable:
+```{r}
+df$FamilySize <- df$SibSp + df$Parch + 1
+```
+
+Engineer the family variable:
+```{r}
+df <- df%>%
+  mutate(
+    Surname = sapply(Name, FUN = function(x) {strsplit(x, split = '[,.]')[[1]][1]}),
+    FamilyID = paste(as.character(FamilySize), Surname, sep=""),
+    FamilyID = ifelse(FamilySize <= 2, 'Small', FamilyID)
+    )
+```
+
+Delete erroneously labeled families:
+```{r}
+famIDs <- data.frame(table(df$FamilyID))
+famIDs <- famIDs[famIDs$Freq <= 2,]
+df$FamilyID[df$FamilyID %in% famIDs$Var1] <- 'Small'
+df$FamilyID <- as.factor(df$FamilyID)
+```
+
+Fill in missing ages:
+```{r}
+summary(df)
+Agefit <- rpart(Age ~ Pclass + Sex + SibSp + Parch + Fare + Embarked + Title + FamilySize, 
+                data = df[!is.na(df$Age),], method="anova")
+df$Age[is.na(df$Age)] <- predict(Agefit, df[is.na(df$Age),])
+```
+
+Fill in missing Embarked/Fares:
+```{r}
+df$Embarked[df$Embarked == ''] = "S"
+df$Embarked <- factor(df$Embarked)
+df$Fare[which(is.na(df$Fare))] <- median(df$Fare, na.rm=TRUE)
+```
+
+Recreate training and test sets:
+```{r}
+train <- df[1:891,]
+test <- df[892:1309,]
+```
+
+Run the model:
+```{r}
+set.seed(858)
+fit <- cforest(as.factor(Survived) ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked + Title + FamilySize + FamilyID,
+               data = train, controls=cforest_unbiased(ntree=2000, mtry=3)) 
+
+Prediction <- predict(fit, test, OOB=TRUE, type = "response")
+submit <- data.frame(PassengerId = test$PassengerId, Survived = Prediction)
+write.csv(submit, file = "titanic_r.csv", row.names = FALSE)
+```
