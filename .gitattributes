@@ -1,0 +1,4 @@
+Kaggle/Kobe/store.h5 filter=lfs diff=lfs merge=lfs -text
+Kaggle/RedHat/ filter=lfs diff=lfs merge=lfs -text
+Kaggle/RedHat/act_train.csv filter=lfs diff=lfs merge=lfs -text
+Kaggle/RedHat/people.csv filter=lfs diff=lfs merge=lfs -text
