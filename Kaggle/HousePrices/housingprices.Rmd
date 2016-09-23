@@ -1,0 +1,84 @@
+---
+title: "housingprices"
+author: "Michael Wang"
+date: "September 12, 2016"
+output: html_document
+---
+# Intro 
+
+The error term we are interested in lowering is RMSE, or $ \root{\dfrac{1}{n} \sum_{j = 1}^n (y_j - \hat{y}_j)^2} $
+
+```{r, echo=FALSE}
+library(ggplot2)
+library(GGally)
+library(dplyr)
+library(corrplot)
+
+setwd("~/GitHub/Kaggle/HousePrices")
+train <- read.csv("train.csv")
+test <- read.csv('test.csv')
+summary(train)
+```
+
+# Cleaning
+
+```{r, echo=FALSE}
+test$SalePrice <- NA
+df <- rbind(train, test)
+
+df$LotFrontage[is.na(df$LotFrontage)] <- 0 
+df$MasVnrArea[is.na(df$MasVnrArea)] <- 0 
+df$GarageYrBlt[is.na(df$GarageYrBlt)] <- 0 
+#df[is.na(df)] <- "NA"
+df_clean <- as.data.frame(df)
+df_clean$MSSubClass <- as.factor(df_clean$MSSubClass)
+df_clean$SalePrice <- as.integer(df_clean$SalePrice)
+```
+
+# Analysis
+
+```{r, echo = False}
+train_clean <- df_clean[!is.na(df_clean$SalePrice), ]
+train_float <- train_clean[, c("SalePrice", "LotFrontage", "LotArea", "OverallQual", "OverallCond", "YearBuilt", "YearRemodAdd", "LowQualFinSF", "GrLivArea", "FullBath", "TotRmsAbvGrd")]
+lr <- lm(SalePrice ~., train_float)
+summary(lr)
+```
+
+```{r, echo = False}
+train_float <- train_clean[, c("LotFrontage", "LotArea", "OverallQual", "OverallCond", "YearBuilt", "YearRemodAdd", "LowQualFinSF", "GrLivArea", "FullBath", "TotRmsAbvGrd")]
+correlations <- cor(train_float, use = "everything")
+cplot <- corrplot(correlations, method="circle", type="lower",  sig.level = 0.01, insig = "blank")
+```
+
+```{r, echo = False}
+train_clean$YmSold = train_clean$YrSold + (train_clean$MoSold - 1) / 12
+
+ymsoldplot <- ggplot(data = train_clean, aes(YmSold, SalePrice)) +
+  geom_point() + 
+  geom_smooth(data = train_clean[train_clean$YrSold == 2006, ], colour = 'red') + 
+  geom_smooth(data = train_clean[train_clean$YrSold == 2007, ], colour = 'red') + 
+  geom_smooth(data = train_clean[train_clean$YrSold == 2008, ], colour = 'red') + 
+  geom_smooth(data = train_clean[train_clean$YrSold == 2009, ], colour = 'red') + 
+  geom_smooth(data = train_clean[train_clean$YrSold == 2010, ], colour = 'red')
+
+ymsoldplot
+
+yrbuiltplot <- ggplot() +
+  geom_point(data = train_clean, aes(x = YearBuilt, y = SalePrice)) +
+  geom_point(data = train_clean, aes(x = YearRemodAdd, y = SalePrice), colour = 'blue') + 
+  geom_smooth(data = train_clean, aes(x = YearBuilt, y = SalePrice), colour = 'red') 
+yrbuiltplot
+
+x1plot <- ggplot(data = train_clean, aes(X1stFlrSF, SalePrice)) +
+  geom_point() + 
+  geom_smooth(colour = 'red')
+
+x1plot
+
+x2plot <- ggplot(data = train_clean[train_clean$X2ndFlrSF > 0, ], aes(X2ndFlrSF, SalePrice)) +
+  geom_point() + 
+  geom_smooth(colour = 'red')
+
+x2plot
+```
+
