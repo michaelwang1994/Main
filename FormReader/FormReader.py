@@ -30,12 +30,10 @@ class Image_Data:
         self.final_img = cv2.drawContours(cv2.imread(imgpath), self.real_contours, -1, (0, 255, 0), 2)
 
     def get_wordless_img(self):
-        cv2.imshow('wordless', self.wordless_img)
-        cv2.waitKey(0)
+        cv2.imwrite('wordless_' + sys.argv[1], self.wordless_img)
 
     def get_final_img(self):
-        cv2.imshow('final', self.final_img)
-        cv2.waitKey(0)
+        cv2.imwrite('final_' + sys.argv[1], self.final_img)
 
     def get_img_string(self):
         print pyt.image_to_string(self.img_pil)
