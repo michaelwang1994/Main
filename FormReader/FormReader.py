@@ -16,7 +16,6 @@ class Image_Data:
         self.height, self.width, self.channels = self.img.shape
         pyt_string = pyt.image_to_string(self.img_pil_gray, boxes=True)
         pyt_string_split = pyt_string.split('\n')
-        # print pyt_string_split
         self.string_split = [split.split() for split in pyt_string_split]
         self.char_array = self.get_char_arrays()
         self.wordless_img = cv2.drawContours(self.img, self.char_array, -1, (255, 255, 255), -1)
@@ -27,6 +26,7 @@ class Image_Data:
         self.image, self.contours, self.hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         cont_hierarchy = np.array(zip(self.contours, self.hierarchy[0][:, 2]))
         self.real_contours = cont_hierarchy[cont_hierarchy[:, 1] == -1][:, 0]
+        self.real_contours = self.get_array_size()
         self.final_img = cv2.drawContours(cv2.imread(imgpath), self.real_contours, -1, (0, 255, 0), 2)
 
     def get_wordless_img(self):
@@ -36,13 +36,13 @@ class Image_Data:
         cv2.imwrite('final_' + sys.argv[1], self.final_img)
 
     def get_img_string(self):
-        print pyt.image_to_string(self.img_pil)
+        print pyt.image_to_string(self.img_pil_gray)
 
     def get_char_arrays(self):
         char_list = []
         for char_split in self.string_split:
             char_id = char_split[0]
-            if (char_id != '~') & (char_id != '_'):
+            if (char_id != '~') & (char_id != '_') & (char_id != ':') & (char_id != '?'):
                 char_split_s = self.height - int(char_split[2])
                 char_split_w = int(char_split[1])
                 char_split_n = self.height - int(char_split[4])
@@ -54,6 +54,18 @@ class Image_Data:
 
         return char_list
 
+    def get_array_size(self):
+        contours_to_keep = []
+        for i, contour in enumerate(self.real_contours):
+            x = contour[:, 0, 0]
+            y = contour[:, 0, 1]
+            min_x, max_x = np.min(x), np.max(x)
+            min_y, max_y = np.min(y), np.max(y)
+            area = (max_x - min_x)*(max_y - min_y)
+            if area > 50:
+                contours_to_keep.append(i)
+
+        return self.real_contours[contours_to_keep]
 print 'start time %s' % (datetime.datetime.now())
 imgpath = str(sys.argv[1])
 test = Image_Data(imgpath)
