@@ -17,7 +17,7 @@ class Image_Data:
         pyt_string = pyt.image_to_string(self.img_pil_gray, boxes=True)
         pyt_string_split = pyt_string.split('\n')
         self.string_split = [split.split() for split in pyt_string_split]
-        self.char_array = self.get_char_arrays()
+        self.char_array, self.special_char_array = self.get_char_arrays()
         self.wordless_img = cv2.drawContours(self.img, self.char_array, -1, (255, 255, 255), -1)
         self.wordless_img = cv2.drawContours(self.wordless_img, self.char_array, -1, (255, 255, 255), 2)
         self.imgray = cv2.cvtColor(self.wordless_img, cv2.COLOR_BGR2GRAY)
@@ -28,6 +28,7 @@ class Image_Data:
         self.real_contours = cont_hierarchy[cont_hierarchy[:, 1] == -1][:, 0]
         self.real_contours = self.get_array_size()
         self.final_img = cv2.drawContours(cv2.imread(imgpath), self.real_contours, -1, (0, 255, 0), 2)
+        self.final_img = cv2.drawContours(self.final_img, self.special_char_array, -1, (0, 255, 0), 2)
 
     def get_wordless_img(self):
         cv2.imwrite('wordless_' + sys.argv[1], self.wordless_img)
@@ -40,19 +41,24 @@ class Image_Data:
 
     def get_char_arrays(self):
         char_list = []
+        special_char_list = []
         for char_split in self.string_split:
             char_id = char_split[0]
+
+            char_split_s = self.height - int(char_split[2])
+            char_split_w = int(char_split[1])
+            char_split_n = self.height - int(char_split[4])
+            char_split_e = int(char_split[3])
+
+            char_boundaries = np.array([[[char_split_e, char_split_s]], [[char_split_e, char_split_n]],
+                                        [[char_split_w, char_split_n]], [[char_split_w, char_split_s]]])
+
             if (char_id != '~') & (char_id != '_') & (char_id != ':') & (char_id != '?'):
-                char_split_s = self.height - int(char_split[2])
-                char_split_w = int(char_split[1])
-                char_split_n = self.height - int(char_split[4])
-                char_split_e = int(char_split[3])
-
-                char_boundaries = np.array([[[char_split_e, char_split_s]], [[char_split_e, char_split_n]],
-                                            [[char_split_w, char_split_n]], [[char_split_w, char_split_s]]])
                 char_list.append(char_boundaries)
+            elif (char_id == ':') | (char_id == '?'):
+                special_char_list.append(char_boundaries)
 
-        return char_list
+        return char_list, special_char_list
 
     def get_array_size(self):
         contours_to_keep = []
