@@ -8,6 +8,8 @@ import sys
 class Image_Data:
 
     def __init__(self, imgpath):
+        # TODO: Make image skew detector
+
         self.img_pil = Image.open(imgpath)
         self.img_pil_gray = self.img_pil.convert('L')
         self.img = cv2.imread(imgpath)
@@ -25,17 +27,28 @@ class Image_Data:
         self.wordless_img = cv2.drawContours(self.wordless_img, self.char_array, -1, (255, 255, 255), 2)
         self.imgray = cv2.cvtColor(self.wordless_img, cv2.COLOR_BGR2GRAY)
 
-    def extract_countours(self):
-        ret, thresh = cv2.threshold(self.imgray, 254, 255, 0)
+    def extract_contours(self):
+        thresh = cv2.adaptiveThreshold(self.imgray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
         self.image, self.contours, self.hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         cont_hierarchy = np.array(zip(self.contours, self.hierarchy[0][:, 2]))
         self.real_contours = cont_hierarchy[cont_hierarchy[:, 1] == -1][:, 0]
         self.real_contours = self.get_array_size()
-        self.real_contours = [contour for contour in self.real_contours if len(contour) <= 10]
+        # self.real_contours = [contour for contour in self.real_contours if len(contour) <= 10]
+
+    def remove_contours_with_chars(self):
+        pass
+        # TODO: create max/min character array to see if current contours include characters
+            # TODO: If the contour contains characters, they must be "NAME", "DATE", or "SIGNATURE"
+                # TODO: After that, split up contours into wide white-spaces
+
+    def add_circles_and_squares(self):
+        pass
+        # TODO: add circles and squares
 
     def add_contours(self):
         self.final_img = cv2.drawContours(cv2.imread(self.imgpath), self.real_contours, -1, (0, 255, 0), 2)
-        self.final_img = cv2.drawContours(self.final_img, self.special_char_array, -1, (0, 255, 0), 2)
+        self.final_img = cv2.drawContours(self.final_img, self.special_char_array, -1, (0, 0, 255), 2)
+        self.final_img = cv2.drawContours(self.final_img, self.char_array, -1, (255, 0, 0), 2)
 
     def get_wordless_img(self):
         cv2.imwrite('wordless_' + sys.argv[1], self.wordless_img)
@@ -80,7 +93,3 @@ class Image_Data:
             elif np.abs(min_y - max_y) < 5 and np.abs(min_x - max_x) > 50:
                 contours_to_keep.append(i)
         return self.real_contours[contours_to_keep]
-
-    # TODO: remove fields that have > 10% text OR JUST keep fields with "DATE" "NAME", etc.
-    # TODO: add circles and squares
-    # TODO: fix skew on scanned images
