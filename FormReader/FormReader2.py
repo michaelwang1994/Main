@@ -10,10 +10,10 @@ class Image_Data:
     def __init__(self, imgpath):
         # TODO: Make image skew detector
 
-        # self.img_pil = Image.open(imgpath)
-        # self.img_pil_gray = self.img_pil.convert('L')
+        self.img_pil = Image.open(imgpath)
+        self.img_pil_gray = self.img_pil.convert('L')
         self.img = cv2.imread(imgpath)
-        self.img_pil_gray = Image.fromarray(cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY))
+        # self.img_pil_gray = Image.fromarray(cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY))
         self.imgpath = imgpath
         self.height, self.width, self.channels = self.img.shape
 
@@ -35,8 +35,15 @@ class Image_Data:
         self.image, self.contours, self.hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         cont_hierarchy = np.array(zip(self.contours, self.hierarchy[0][:, 2]))
         self.real_contours = cont_hierarchy[cont_hierarchy[:, 1] == -1][:, 0]
-        self.real_contours = self.get_array_size()
-        # self.real_contours = [contour for contour in self.real_contours if len(contour) <= 10]
+        # self.real_contours = self.get_array_size()
+        self.real_contours = [contour for contour in self.real_contours if len(contour) <= 10]
+
+    # def remove_extra_contours(self):
+    #     for contour in self.real_contours:
+    #         sample =
+    def remove_contours_with_chars(self):
+        pass
+
 
         # TODO: create max/min character array to see if current contours include characters
             # TODO: If the contour contains characters, they must be "NAME", "DATE", or "SIGNATURE"
@@ -97,12 +104,9 @@ class Image_Data:
             min_y, max_y = np.min(y), np.max(y)
             area = (max_x - min_x)*(max_y - min_y)
 
-            if area > 50:
 
-                sample = cv2.imread(self.imgpath)[min_y:max_y, min_x:max_x]
-                unique = np.unique(sample)
-                if 0 not in unique:
-                    contours_to_keep.append(i)
+            if area > 50:
+                contours_to_keep.append(i)
             elif np.abs(min_y - max_y) < 5 and np.abs(min_x - max_x) > 50:
                 contours_to_keep.append(i)
         return self.real_contours[contours_to_keep]

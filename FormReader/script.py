@@ -10,6 +10,8 @@ test.remove_chars()
 test.extract_contours()
 # test.text_from_contours()
 test.add_contours()
+# test.get_img_string()
+# test.remove_contours_with_chars()
 test.get_final_img()
 print 'end time %s' % (datetime.datetime.now())
 
