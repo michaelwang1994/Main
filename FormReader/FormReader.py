@@ -10,8 +10,6 @@ class Image_Data:
     def __init__(self, imgpath):
         # TODO: Make image skew detector
 
-        # self.img_pil = Image.open(imgpath)
-        # self.img_pil_gray = self.img_pil.convert('L')
         self.img = cv2.imread(imgpath)
         self.img_pil_gray = Image.fromarray(cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY))
         self.imgpath = imgpath
@@ -91,18 +89,30 @@ class Image_Data:
     def get_array_size(self):
         contours_to_keep = []
         for i, contour in enumerate(self.real_contours):
-            x = contour[:, 0, 0]
-            y = contour[:, 0, 1]
+            y = contour[:, 0, 0]
+            x = contour[:, 0, 1]
+
             min_x, max_x = np.min(x), np.max(x)
             min_y, max_y = np.min(y), np.max(y)
             area = (max_x - min_x)*(max_y - min_y)
 
-            if area > 50:
 
-                sample = cv2.imread(self.imgpath)[min_y:max_y, min_x:max_x]
-                unique = np.unique(sample)
-                if 0 not in unique:
-                    contours_to_keep.append(i)
+
+            sample = cv2.imread(self.imgpath)[min_x:max_x, min_y:max_y]
+            unique = np.unique(sample)
+
+            x_vals_e = np.array(self.char_array)[:, :, 0, 0][:, 0]
+            x_vals_w = np.array(self.char_array)[:, :, 0, 0][:, 2]
+
+            y_vals_s = np.array(self.char_array)[:, :, 0, 1][:, 0]
+            y_vals_n = np.array(self.char_array)[:, :, 0, 1][:, 2]
+
+            contains_chars = np.array(self.char_list)[(min_x < x_vals_e) & (max_x > x_vals_w) & (min_y < y_vals_s) & (max_y > y_vals_n)]
+            if area > 50:
+                contours_to_keep.append(i)
+            elif len(contains_chars) == 0:
+                contours_to_keep.append(i)
+
             elif np.abs(min_y - max_y) < 5 and np.abs(min_x - max_x) > 50:
                 contours_to_keep.append(i)
         return self.real_contours[contours_to_keep]
