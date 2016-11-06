@@ -33,7 +33,7 @@ class Image_Data:
         thresh = cv2.adaptiveThreshold(self.imgray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
         self.image, self.contours, self.hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         self.real_contours = np.array(self.contours)[self.hierarchy[0][:, 2] == -1]
-        self.special_contours = self.add_special_contours()
+        self.real_contours = self.add_special_contours()
         self.real_contours = self.get_array_size()
 
     def add_circles_and_squares(self):
@@ -45,7 +45,7 @@ class Image_Data:
         self.final_img = cv2.drawContours(cv2.imread(self.imgpath), self.special_char_array, -1, (0, 0, 255), 2)
         self.final_img = cv2.drawContours(self.final_img, self.char_array, -1, (255, 0, 0), 2)
         self.final_img = cv2.drawContours(self.final_img, self.real_contours, -1, (0, 255, 0), 2)
-        self.final_img = cv2.drawContours(self.final_img, self.special_contours, -1, (0, 0, 255), 2)
+        # self.final_img = cv2.drawContours(self.final_img, self.special_contours, -1, (0, 0, 255), 2)
 
     def get_wordless_img(self):
         cv2.imwrite('wordless_' + sys.argv[1], self.wordless_img)
@@ -116,44 +116,26 @@ class Image_Data:
         return self.real_contours[contours_to_keep]
 
     def add_special_contours(self):
-        # real_contour_list = list(self.real_contours)
-        test_contour_list = []
+        special_contour_list = list(self.real_contours)
         for special_char in self.special_char_array:
             e = special_char[:, 0, 0][0]
             w = special_char[:, 0, 0][2]
             s = special_char[:, 0, 1][0]
             n = special_char[:, 0, 1][2]
-            # print "East: %s, West: %s, South: %s, North: %s" % (e, w, s, n)
-            sample = self.imggray_original[e + self.window_width:, :]
-            ret, sample_thresh = cv2.threshold(sample, 127, 255, cv2.THRESH_BINARY)
-            sample_image, sample_contours, sample_hierarchy = cv2.findContours(sample_thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-            new_n = new_w = 0
-            new_s = self.height
-            new_e = self.width
-
-            for contour in sample_contours:
-                x = contour[:, 0, 0]
-                y = contour[:, 0, 1]
-
-                min_x, max_x = np.min(x), np.max(x)
-                min_y, max_y = np.min(y), np.max(y)
-
-                if min_y < s & min_y > new_s:
-                    new_s = min_y
-                if max_y > n & max_y > new_n:
-                    new_n = max_y
-                if min_x < w & min_x > new_w:
-                    new_w = min_x
-                if max_x > e & max_x < new_e:
-                    new_e = max_x
-
-
-            new_e = new_e + e + self.window_width
             new_w = e + self.window_width
-            # print "East: %s, West: %s, South: %s, North: %s -- UPDATED" % (new_e, new_w, new_s, new_n)
-            special_char_boundaries = np.array([[[new_e, new_s]], [[new_e, new_n]],
-                                                [[new_w, new_n]], [[new_w, new_s]]])
-
-            test_contour_list.append(special_char_boundaries)
-        return np.array(test_contour_list)
+            new_n = int(n - .25 * self.window_height)
+            new_s = int(s + .25 * self.window_height)
+            sample = self.imggray_original[:, new_w:]
+            color_test = sample[s, 0]
+            try:
+                e_test = (np.where(sample[new_n:new_s, :] != color_test)[1])
+                if len(e_test) == 0:
+                    new_e = self.width - self.window_width
+                else:
+                    new_e = np.min(e_test) + new_w - 5
+                special_char_boundaries = np.array([[[new_e, new_s]], [[new_e, new_n]],
+                                                    [[new_w, new_n]], [[new_w, new_s]]])
+                special_contour_list.append(special_char_boundaries)
+            except:
+                next
+        return np.array(special_contour_list)
