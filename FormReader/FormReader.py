@@ -97,8 +97,22 @@ class Image_Data:
             min_x, max_x = np.min(x), np.max(x)
             min_y, max_y = np.min(y), np.max(y)
             area = (max_x - min_x)*(max_y - min_y)
-            sample = self.imggray_original[min_y:max_y, min_x:max_x]
 
+            if np.abs(min_y - max_y) < .75*self.window_height:
+                new_contour = np.array([[[max_x, max_y]], [[max_x, min_y - self.window_height]],
+                                        [[min_x, min_y - self.window_height]], [[min_x, max_y]]])
+            else:
+                new_contour = np.array([[[max_x, max_y]], [[max_x, min_y]],
+                                        [[min_x, min_y]], [[min_x, max_y]]])
+
+            new_x = new_contour[:, 0, 0]
+            new_y = new_contour[:, 0, 1]
+
+            min_x, max_x = np.min(new_x), np.max(new_x)
+            min_y, max_y = np.min(new_y), np.max(new_y)
+            area = (max_x - min_x) * (max_y - min_y)
+
+            sample = self.imggray_original[min_y:max_y, min_x:max_x]
             contains_chars = np.array(self.char_list)[(min_x < self.x_vals_w) & (max_x > self.x_vals_e) &
                                                       (min_y < self.y_vals_s) & (max_y > self.y_vals_n)]
             if (area > self.window_height*self.window_width) or (np.abs(min_y - max_y) < self.window_height and np.abs(min_x - max_x) > self.window_width):
@@ -109,11 +123,10 @@ class Image_Data:
                             sample_image, sample_contours, sample_hierarchy = cv2.findContours(sample_thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
                             if len(sample_contours) < 3:
-                                contours_to_keep.append(i)
-
+                                contours_to_keep.append(new_contour)
                     except:
                         next
-        return self.real_contours[contours_to_keep]
+        return np.array(np.array(contours_to_keep))
 
     def add_special_contours(self):
         special_contour_list = list(self.real_contours)

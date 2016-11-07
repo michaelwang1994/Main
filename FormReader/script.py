@@ -14,4 +14,3 @@ test.add_contours()
 # test.remove_contours_with_chars()
 test.get_final_img()
 print 'end time %s' % (datetime.datetime.now())
-
