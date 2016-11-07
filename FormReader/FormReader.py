@@ -29,8 +29,8 @@ class Image_Data:
         self.imgray = cv2.cvtColor(self.wordless_img, cv2.COLOR_BGR2GRAY)
 
     def extract_contours(self):
-        # ret, thresh = cv2.threshold(self.imgray, 127, 255, 0)
-        thresh = cv2.adaptiveThreshold(self.imgray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+        ret, thresh = cv2.threshold(self.imgray, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
+        # thresh = cv2.adaptiveThreshold(self.imgray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
         self.image, self.contours, self.hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         self.real_contours = np.array(self.contours)[self.hierarchy[0][:, 2] == -1]
         self.real_contours = self.add_special_contours()
