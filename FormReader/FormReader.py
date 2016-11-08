@@ -3,19 +3,52 @@ import numpy as np
 from PIL import Image
 import pytesseract as pyt
 import sys
+import imutils
+from imutils.perspective import four_point_transform
 
 class Image_Data:
 
-    def __init__(self, imgpath):
-        # TODO: Make image skew detector
+    def __init__(self, imgpath, is_camera=False):
 
-        self.img = cv2.imread(imgpath)
-        self.imggray_original = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
-        self.img_pil_gray = Image.fromarray(self.imggray_original)
-        self.imgpath = imgpath
-        self.height, self.width, self.channels = self.img.shape
-        self.window_height = int(.01 * self.height)
-        self.window_width = int(.01 * self.width)
+        if is_camera:
+            self.img = cv2.imread(imgpath)
+            self.imggray_original = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+
+            gray = cv2.GaussianBlur(self.imggray_original, (5, 5), 0)
+            edged = cv2.Canny(gray, 75, 200)
+
+            contours = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]
+            contours = sorted(contours, key=cv2.contourArea, reverse=True)
+            screenCnt = None
+
+            # loop over the contours
+            for contour in contours:
+                # approximate the contour
+                peri = cv2.arcLength(contour, True)
+                approx = cv2.approxPolyDP(contour, 0.02 * peri, True)
+
+                # if our approximated contour has four points, then we
+                # can assume that we have found our screen
+                if len(approx) == 4:
+                    screenCnt = approx
+                    self.img = four_point_transform(self.img, screenCnt.reshape(4, 2))
+                    self.imggray_original = four_point_transform(gray, screenCnt.reshape(4, 2))
+                    self.img_pil_gray = Image.fromarray(self.imggray_original)
+                    self.imgpath = imgpath
+                    self.height, self.width, self.channels = self.img.shape
+                    self.window_height = int(.01 * self.height)
+                    self.window_width = int(.01 * self.width)
+
+                    break
+
+        else:
+            self.img = cv2.imread(imgpath)
+            self.imggray_original = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+            self.img_pil_gray = Image.fromarray(self.imggray_original)
+            self.imgpath = imgpath
+            self.height, self.width, self.channels = self.img.shape
+            self.window_height = int(.01 * self.height)
+            self.window_width = int(.01 * self.width)
 
     def extract_chars(self):
         pyt_string = pyt.image_to_string(self.img_pil_gray, boxes=True)
@@ -35,10 +68,6 @@ class Image_Data:
         self.real_contours = np.array(self.contours)[self.hierarchy[0][:, 2] == -1]
         self.real_contours = self.add_special_contours()
         self.real_contours = self.get_array_size()
-
-    def add_circles_and_squares(self):
-        pass
-        # TODO: add circles and squares
 
     def add_contours(self):
 
