@@ -3,39 +3,51 @@ import numpy as np
 from PIL import Image
 import pytesseract as pyt
 import sys
-import imutils
 from imutils.perspective import four_point_transform
+from skimage.filters import threshold_adaptive
 
 class Image_Data:
 
-    def __init__(self, imgpath, is_camera=False):
+    def __init__(self, imgpath, is_camera=True):
 
         if is_camera:
             self.img = cv2.imread(imgpath)
+            self.img = cv2.resize(self.img.copy(), (int(.95*self.img.shape[1]), int(.95*self.img.shape[0])), interpolation = cv2.INTER_CUBIC)
             self.imggray_original = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+            # cv2.imshow("test", self.img.copy())
+            # cv2.waitKey(0)
 
             gray = cv2.GaussianBlur(self.imggray_original, (5, 5), 0)
             edged = cv2.Canny(gray, 75, 200)
+            # cv2.imshow("test", gray)
+            cv2.imshow("test", cv2.resize(edged.copy(), (int(.5*self.img.shape[1]), int(.5*self.img.shape[0])), interpolation = cv2.INTER_CUBIC))
+            cv2.waitKey(0)
 
-            contours = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]
+            img, contours, heir = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             contours = sorted(contours, key=cv2.contourArea, reverse=True)
-            screenCnt = None
 
             # loop over the contours
-            for contour in contours:
+            for i, contour in enumerate(contours):
                 # approximate the contour
                 peri = cv2.arcLength(contour, True)
-                approx = cv2.approxPolyDP(contour, 0.02 * peri, True)
+                approx = cv2.approxPolyDP(contour, 0.05 * peri, True)
 
                 # if our approximated contour has four points, then we
                 # can assume that we have found our screen
                 if len(approx) == 4:
+                # if i == 0:
                     screenCnt = approx
-                    self.img = four_point_transform(self.img, screenCnt.reshape(4, 2))
+                    # cv2.imshow("test", cv2.drawContours(self.img.copy(), contour, -1, (255, 0, 0), 2))
+                    self.img = four_point_transform(self.img.copy(), screenCnt.reshape(4, 2))
                     self.imggray_original = four_point_transform(gray, screenCnt.reshape(4, 2))
+                    self.imggray_original = threshold_adaptive(self.imggray_original, 251, offset=10)
+                    self.imggray_original = self.imggray_original.astype("uint8") * 255
+
+                    self.height, self.width, self.channels = self.img.shape
+                    cv2.imshow("test", cv2.resize(self.imggray_original, (int(.5 * self.img.shape[1]), int(.5 * self.img.shape[0])), interpolation=cv2.INTER_CUBIC))
+                    cv2.waitKey(0)
                     self.img_pil_gray = Image.fromarray(self.imggray_original)
                     self.imgpath = imgpath
-                    self.height, self.width, self.channels = self.img.shape
                     self.window_height = int(.01 * self.height)
                     self.window_width = int(.01 * self.width)
 
@@ -43,7 +55,8 @@ class Image_Data:
 
         else:
             self.img = cv2.imread(imgpath)
-            self.imggray_original = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+            self.imggray_original = cv2.cvtColor(self.img.copy(), cv2.COLOR_BGR2GRAY)
+
             self.img_pil_gray = Image.fromarray(self.imggray_original)
             self.imgpath = imgpath
             self.height, self.width, self.channels = self.img.shape
@@ -57,7 +70,7 @@ class Image_Data:
         self.char_list, self.char_array, self.special_char_list, self.special_char_array = self.get_char_arrays()
 
     def remove_chars(self):
-        self.wordless_img = cv2.drawContours(self.img, self.char_array, -1, (255, 255, 255), -1)
+        self.wordless_img = cv2.drawContours(self.img.copy(), self.char_array, -1, (255, 255, 255), -1)
         self.wordless_img = cv2.drawContours(self.wordless_img, self.char_array, -1, (255, 255, 255), 2)
         self.imgray = cv2.cvtColor(self.wordless_img, cv2.COLOR_BGR2GRAY)
 
@@ -71,7 +84,7 @@ class Image_Data:
 
     def add_contours(self):
 
-        self.final_img = cv2.drawContours(cv2.imread(self.imgpath), self.special_char_array, -1, (0, 0, 255), 2)
+        self.final_img = cv2.drawContours(self.img.copy(), self.special_char_array, -1, (0, 0, 255), 2)
         self.final_img = cv2.drawContours(self.final_img, self.char_array, -1, (255, 0, 0), 2)
         self.final_img = cv2.drawContours(self.final_img, self.real_contours, -1, (0, 255, 0), 2)
         # self.final_img = cv2.drawContours(self.final_img, self.special_contours, -1, (0, 0, 255), 2)
