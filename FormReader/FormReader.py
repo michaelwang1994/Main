@@ -8,7 +8,7 @@ from skimage.filters import threshold_adaptive
 
 class Image_Data:
 
-    def __init__(self, imgpath, is_camera=True):
+    def __init__(self, imgpath, is_camera=False):
 
         if is_camera:
             self.img = cv2.imread(imgpath)
@@ -133,41 +133,16 @@ class Image_Data:
     def get_array_size(self):
         contours_to_keep = []
         for i, contour in enumerate(self.real_contours):
-            x = contour[:, 0, 0]
-            y = contour[:, 0, 1]
 
-            min_x, max_x = np.min(x), np.max(x)
-            min_y, max_y = np.min(y), np.max(y)
-            area = (max_x - min_x)*(max_y - min_y)
+            try:
+                new_contour, sample = self.resize_contour(contour)
+                ret, sample_thresh = cv2.threshold(sample, 127, 255, cv2.THRESH_BINARY)
+                sample_image, sample_contours, sample_hierarchy = cv2.findContours(sample_thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+                if len(sample_contours) < 2:
+                    contours_to_keep.append(new_contour)
+            except:
+                next
 
-            if np.abs(min_y - max_y) < .75*self.window_height:
-                new_contour = np.array([[[max_x, max_y]], [[max_x, min_y - self.window_height]],
-                                        [[min_x, min_y - self.window_height]], [[min_x, max_y]]])
-            else:
-                new_contour = np.array([[[max_x, max_y]], [[max_x, min_y]],
-                                        [[min_x, min_y]], [[min_x, max_y]]])
-
-            new_x = new_contour[:, 0, 0]
-            new_y = new_contour[:, 0, 1]
-
-            min_x, max_x = np.min(new_x), np.max(new_x)
-            min_y, max_y = np.min(new_y), np.max(new_y)
-            area = (max_x - min_x) * (max_y - min_y)
-
-            sample = self.imggray_original[min_y:max_y, min_x:max_x]
-            contains_chars = np.array(self.char_list)[(min_x < self.x_vals_w) & (max_x > self.x_vals_e) &
-                                                      (min_y < self.y_vals_s) & (max_y > self.y_vals_n)]
-            if (area > self.window_height*self.window_width) or (np.abs(min_y - max_y) < self.window_height and np.abs(min_x - max_x) > self.window_width):
-                if max_x - min_x > max_y - min_y:
-                    try:
-                        if len(contains_chars) == 0:
-                            ret, sample_thresh = cv2.threshold(sample, 127, 255, cv2.THRESH_BINARY)
-                            sample_image, sample_contours, sample_hierarchy = cv2.findContours(sample_thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-                            if len(sample_contours) < 3:
-                                contours_to_keep.append(new_contour)
-                    except:
-                        next
         return np.array(np.array(contours_to_keep))
 
     def add_special_contours(self):
@@ -193,4 +168,45 @@ class Image_Data:
                 special_contour_list.append(special_char_boundaries)
             except:
                 next
+
         return np.array(special_contour_list)
+
+    def resize_contour(self, contour):
+        x = contour[:, 0, 0]
+        y = contour[:, 0, 1]
+
+        min_x, max_x = np.min(x), np.max(x)
+        min_y, max_y = np.min(y), np.max(y)
+
+        # expand contour if too small. turns contours into squares
+        if np.abs(min_y - max_y) < self.window_height:
+            new_contour = np.array([[[max_x, max_y]], [[max_x, max_y - self.window_height]],
+                                    [[min_x, max_y - self.window_height]], [[min_x, max_y]]])
+        else:
+            new_contour = np.array([[[max_x, max_y]], [[max_x, min_y]],
+                                    [[min_x, min_y]], [[min_x, max_y]]])
+
+        new_x = new_contour[:, 0, 0]
+        new_y = new_contour[:, 0, 1]
+
+        min_x, max_x = np.min(new_x), np.max(new_x)
+        min_y, max_y = np.min(new_y), np.max(new_y)
+
+        area = (max_x - min_x) * (max_y - min_y)
+
+        sample = self.imggray_original[min_y + 3:max_y - 3, min_x + 3:max_x - 3]
+
+        # check if there are characters in contour
+        char_conditions = (min_x < self.x_vals_w) & (max_x > self.x_vals_e) & (min_y < self.y_vals_s) & (max_y > self.y_vals_n)
+        contains_chars = np.array(self.char_list)[char_conditions]
+
+        # check if the contour is big enough
+        area_condition_mult = (area > 2 * self.window_height * self.window_width)
+        area_condition_size = (max_x - min_x > self.window_width)
+
+        if (area_condition_mult) & (area_condition_size):
+            if max_x - min_x > max_y - min_y:
+                if len(contains_chars) == 0:
+                    print np.unique(sample)
+                    return new_contour, sample
+                    # if len(np.unique(sample)) <= 3:
