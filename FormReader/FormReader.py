@@ -135,7 +135,6 @@ class Image_Data:
         for i, contour in enumerate(self.real_contours):
             try:
                 new_contour, sample = self.resize_contour(contour)
-                print np.mean(sample)
                 if np.mean(sample) > 230:
 
 
