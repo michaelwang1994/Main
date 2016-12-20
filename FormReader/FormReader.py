@@ -133,13 +133,22 @@ class Image_Data:
     def get_array_size(self):
         contours_to_keep = []
         for i, contour in enumerate(self.real_contours):
-
             try:
                 new_contour, sample = self.resize_contour(contour)
-                ret, sample_thresh = cv2.threshold(sample, 127, 255, cv2.THRESH_BINARY)
-                sample_image, sample_contours, sample_hierarchy = cv2.findContours(sample_thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                if len(sample_contours) < 2:
-                    contours_to_keep.append(new_contour)
+                print np.mean(sample)
+                if np.mean(sample) > 230:
+
+
+                # mean_gray = np.mean(mean_color)
+                # print mean_gray
+                # color_diff = mean_color - mean_gray
+                # print color_diff
+
+                    ret, sample_thresh = cv2.threshold(sample, 127, 255, cv2.THRESH_BINARY)
+                    sample_image, sample_contours, sample_hierarchy = cv2.findContours(sample_thresh, cv2.RETR_TREE,
+                                                                                       cv2.CHAIN_APPROX_SIMPLE)
+                    if len(sample_contours) <= 2:
+                        contours_to_keep.append(new_contour)
             except:
                 next
 
@@ -197,16 +206,15 @@ class Image_Data:
         sample = self.imggray_original[min_y + 3:max_y - 3, min_x + 3:max_x - 3]
 
         # check if there are characters in contour
-        char_conditions = (min_x < self.x_vals_w) & (max_x > self.x_vals_e) & (min_y < self.y_vals_s) & (max_y > self.y_vals_n)
+        char_conditions = (min_x < self.x_vals_w) & (max_x > self.x_vals_e) & \
+                          (min_y < self.y_vals_s) & (max_y > self.y_vals_n)
         contains_chars = np.array(self.char_list)[char_conditions]
 
         # check if the contour is big enough
         area_condition_mult = (area > 2 * self.window_height * self.window_width)
         area_condition_size = (max_x - min_x > self.window_width)
 
-        if (area_condition_mult) & (area_condition_size):
+        if area_condition_mult & area_condition_size:
             if max_x - min_x > max_y - min_y:
                 if len(contains_chars) == 0:
-                    print np.unique(sample)
                     return new_contour, sample
-                    # if len(np.unique(sample)) <= 3:
