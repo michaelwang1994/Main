@@ -14,12 +14,9 @@ class Image_Data:
             self.img = cv2.imread(imgpath)
             self.img = cv2.resize(self.img.copy(), (int(.95*self.img.shape[1]), int(.95*self.img.shape[0])), interpolation = cv2.INTER_CUBIC)
             self.imggray_original = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
-            # cv2.imshow("test", self.img.copy())
-            # cv2.waitKey(0)
 
             gray = cv2.GaussianBlur(self.imggray_original, (5, 5), 0)
             edged = cv2.Canny(gray, 75, 200)
-            # cv2.imshow("test", gray)
             cv2.imshow("test", cv2.resize(edged.copy(), (int(.5*self.img.shape[1]), int(.5*self.img.shape[0])), interpolation = cv2.INTER_CUBIC))
             cv2.waitKey(0)
 
@@ -37,7 +34,6 @@ class Image_Data:
                 if len(approx) == 4:
                 # if i == 0:
                     screenCnt = approx
-                    # cv2.imshow("test", cv2.drawContours(self.img.copy(), contour, -1, (255, 0, 0), 2))
                     self.img = four_point_transform(self.img.copy(), screenCnt.reshape(4, 2))
                     self.imggray_original = four_point_transform(gray, screenCnt.reshape(4, 2))
                     self.imggray_original = threshold_adaptive(self.imggray_original, 251, offset=10)
@@ -76,7 +72,6 @@ class Image_Data:
 
     def extract_contours(self):
         ret, thresh = cv2.threshold(self.imgray, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
-        # thresh = cv2.adaptiveThreshold(self.imgray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
         self.image, self.contours, self.hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         self.real_contours = np.array(self.contours)[self.hierarchy[0][:, 2] == -1]
         self.real_contours = self.add_special_contours()
@@ -87,7 +82,6 @@ class Image_Data:
         self.final_img = cv2.drawContours(self.img.copy(), self.special_char_array, -1, (0, 0, 255), 2)
         self.final_img = cv2.drawContours(self.final_img, self.char_array, -1, (255, 0, 0), 2)
         self.final_img = cv2.drawContours(self.final_img, self.real_contours, -1, (0, 255, 0), 2)
-        # self.final_img = cv2.drawContours(self.final_img, self.special_contours, -1, (0, 0, 255), 2)
 
     def get_wordless_img(self):
         cv2.imwrite('wordless_' + sys.argv[1], self.wordless_img)
@@ -136,12 +130,6 @@ class Image_Data:
             try:
                 new_contour, sample = self.resize_contour(contour)
                 if np.mean(sample) > 230:
-
-
-                # mean_gray = np.mean(mean_color)
-                # print mean_gray
-                # color_diff = mean_color - mean_gray
-                # print color_diff
 
                     ret, sample_thresh = cv2.threshold(sample, 127, 255, cv2.THRESH_BINARY)
                     sample_image, sample_contours, sample_hierarchy = cv2.findContours(sample_thresh, cv2.RETR_TREE,
