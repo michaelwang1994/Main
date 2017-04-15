@@ -20,7 +20,7 @@ int main() {
     vector<string> comboList = getL1(minsup, input_path, output_path);
 
     long k = 2;
-    while (comboList.size() > 0)
+    while (comboList.size() > 1)
     {
         vector<vector<string>> v = getCombs(k, comboList);
         comboList = getLMult(k, minsup, v, input_path, output_path);
