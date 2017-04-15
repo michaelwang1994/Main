@@ -7,10 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DE8C025F1E98E5A4002E2E2B /* getLMultDict.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE8C025D1E98E5A4002E2E2B /* getLMultDict.cpp */; };
 		DEEFF3A81E96F98500D9E8EB /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEEFF3A71E96F98500D9E8EB /* main.cpp */; };
-		DEEFF3B31E98696200D9E8EB /* getL1Dict.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEEFF3B11E98696200D9E8EB /* getL1Dict.cpp */; };
-		DEEFF3B61E98760200D9E8EB /* getCombDict.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEEFF3B41E98760200D9E8EB /* getCombDict.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,13 +23,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		DE8C025D1E98E5A4002E2E2B /* getLMultDict.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = getLMultDict.cpp; sourceTree = "<group>"; };
 		DE8C025E1E98E5A4002E2E2B /* getLMultDict.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = getLMultDict.hpp; sourceTree = "<group>"; };
 		DEEFF3A41E96F98500D9E8EB /* PatternMiningProgrammingAssignment1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PatternMiningProgrammingAssignment1; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEEFF3A71E96F98500D9E8EB /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		DEEFF3B11E98696200D9E8EB /* getL1Dict.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = getL1Dict.cpp; sourceTree = "<group>"; };
 		DEEFF3B21E98696200D9E8EB /* getL1Dict.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = getL1Dict.hpp; sourceTree = "<group>"; };
-		DEEFF3B41E98760200D9E8EB /* getCombDict.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = getCombDict.cpp; sourceTree = "<group>"; };
 		DEEFF3B51E98760200D9E8EB /* getCombDict.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = getCombDict.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -67,9 +61,6 @@
 			isa = PBXGroup;
 			children = (
 				DEEFF3A71E96F98500D9E8EB /* main.cpp */,
-				DEEFF3B11E98696200D9E8EB /* getL1Dict.cpp */,
-				DE8C025D1E98E5A4002E2E2B /* getLMultDict.cpp */,
-				DEEFF3B41E98760200D9E8EB /* getCombDict.cpp */,
 				DEEFF3B21E98696200D9E8EB /* getL1Dict.hpp */,
 				DE8C025E1E98E5A4002E2E2B /* getLMultDict.hpp */,
 				DEEFF3B51E98760200D9E8EB /* getCombDict.hpp */,
@@ -134,10 +125,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEEFF3B61E98760200D9E8EB /* getCombDict.cpp in Sources */,
 				DEEFF3A81E96F98500D9E8EB /* main.cpp in Sources */,
-				DEEFF3B31E98696200D9E8EB /* getL1Dict.cpp in Sources */,
-				DE8C025F1E98E5A4002E2E2B /* getLMultDict.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
