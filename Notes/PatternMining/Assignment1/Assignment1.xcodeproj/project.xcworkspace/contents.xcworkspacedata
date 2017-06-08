@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:PatternMiningProgrammingAssignment1.xcodeproj">
+      location = "self:Assignment1.xcodeproj">
    </FileRef>
 </Workspace>

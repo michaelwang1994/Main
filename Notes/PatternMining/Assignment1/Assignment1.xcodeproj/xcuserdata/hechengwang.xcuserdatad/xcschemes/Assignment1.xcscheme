@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0820"
+   LastUpgradeVersion = "0830"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DEEFF3A31E96F98500D9E8EB"
-               BuildableName = "PatternMiningProgrammingAssignment1"
-               BlueprintName = "PatternMiningProgrammingAssignment1"
-               ReferencedContainer = "container:PatternMiningProgrammingAssignment1.xcodeproj">
+               BlueprintIdentifier = "DE2AAA871EB4191B000DBCA8"
+               BuildableName = "Assignment1"
+               BlueprintName = "Assignment1"
+               ReferencedContainer = "container:Assignment1.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DEEFF3A31E96F98500D9E8EB"
-            BuildableName = "PatternMiningProgrammingAssignment1"
-            BlueprintName = "PatternMiningProgrammingAssignment1"
-            ReferencedContainer = "container:PatternMiningProgrammingAssignment1.xcodeproj">
+            BlueprintIdentifier = "DE2AAA871EB4191B000DBCA8"
+            BuildableName = "Assignment1"
+            BlueprintName = "Assignment1"
+            ReferencedContainer = "container:Assignment1.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -55,10 +55,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DEEFF3A31E96F98500D9E8EB"
-            BuildableName = "PatternMiningProgrammingAssignment1"
-            BlueprintName = "PatternMiningProgrammingAssignment1"
-            ReferencedContainer = "container:PatternMiningProgrammingAssignment1.xcodeproj">
+            BlueprintIdentifier = "DE2AAA871EB4191B000DBCA8"
+            BuildableName = "Assignment1"
+            BlueprintName = "Assignment1"
+            ReferencedContainer = "container:Assignment1.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -74,10 +74,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DEEFF3A31E96F98500D9E8EB"
-            BuildableName = "PatternMiningProgrammingAssignment1"
-            BlueprintName = "PatternMiningProgrammingAssignment1"
-            ReferencedContainer = "container:PatternMiningProgrammingAssignment1.xcodeproj">
+            BlueprintIdentifier = "DE2AAA871EB4191B000DBCA8"
+            BuildableName = "Assignment1"
+            BlueprintName = "Assignment1"
+            ReferencedContainer = "container:Assignment1.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
